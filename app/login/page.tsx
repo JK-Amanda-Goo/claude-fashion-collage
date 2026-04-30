@@ -1,0 +1,112 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { register, login, setCurrentUser } from "@/lib/auth";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      if (mode === "register") {
+        const result = await register(email.trim(), password);
+        if (result === "exists") {
+          setError("An account with this email already exists.");
+          return;
+        }
+      }
+
+      const result = await login(email.trim(), password);
+      if (result === "invalid") {
+        setError("Invalid email or password.");
+        return;
+      }
+
+      setCurrentUser(email.trim().toLowerCase());
+      router.push("/");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="fc-shell">
+      <div className="cork-board">
+        <div className="cork-inner" style={{ maxWidth: 420 }}>
+          <h1 className="cork-title" style={{ marginBottom: 8 }}>
+            Fashion Collage
+          </h1>
+          <p className="cork-sub" style={{ marginBottom: 32 }}>
+            {mode === "login" ? "Sign in to your account" : "Create an account"}
+          </p>
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <input
+              className="fc-input"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoFocus
+            />
+            <input
+              className="fc-input"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+            {error && (
+              <p style={{ fontSize: 13, color: "#c0392b", margin: 0 }}>{error}</p>
+            )}
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={loading}
+              style={{ marginTop: 4 }}
+            >
+              {loading ? "…" : mode === "login" ? "Sign in" : "Create account"}
+            </button>
+          </form>
+
+          <p style={{ marginTop: 20, fontSize: 13, color: "var(--ink-3)", textAlign: "center" }}>
+            {mode === "login" ? (
+              <>
+                No account?{" "}
+                <button
+                  className="link-btn"
+                  onClick={() => { setMode("register"); setError(null); }}
+                >
+                  Sign up
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <button
+                  className="link-btn"
+                  onClick={() => { setMode("login"); setError(null); }}
+                >
+                  Sign in
+                </button>
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
