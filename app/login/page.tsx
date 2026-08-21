@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { register, login, setCurrentUser } from "@/lib/auth";
+import { logEvent } from "@/lib/eventLog";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function LoginPage() {
       }
 
       setCurrentUser(email.trim().toLowerCase());
+      logEvent("login");
       router.push("/");
     } finally {
       setLoading(false);

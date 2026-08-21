@@ -12,6 +12,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.0",
     "@google/generative-ai": "^0.24.1",
+    "@neondatabase/serverless": "^1.1.0",
     "ai": "^6.0.168",
     "idb-keyval": "^6.2.2",
     "langfuse": "^3.38.20",

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { get, set, del } from "idb-keyval";
 import type { Canvas, Photo } from "@/types/collage";
 import { loadCanvases, saveCanvases } from "@/lib/storage";
+import { logEvent } from "@/lib/eventLog";
 
 export interface UseCanvasesReturn {
   canvases: Canvas[];
@@ -59,6 +60,7 @@ export function useCanvases(): UseCanvasesReturn {
       saveWithoutDataUrls(updated);
       return updated;
     });
+    logEvent("canvas_created", { canvasId: canvas.id });
   }, []);
 
   const addPhoto = useCallback((canvasId: string, photo: Photo) => {
@@ -72,6 +74,7 @@ export function useCanvases(): UseCanvasesReturn {
       saveWithoutDataUrls(updated);
       return updated;
     });
+    logEvent("photo_uploaded", { canvasId, metadata: { photoId: photo.id } });
   }, []);
 
   const deleteCanvas = useCallback((canvasId: string) => {
