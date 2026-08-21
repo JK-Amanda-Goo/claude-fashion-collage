@@ -634,6 +634,16 @@ body {
   margin: 40px 0 0;
 }
 
+.fc-error {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #fff;
+  background: rgba(192, 57, 43, 0.85);
+  border-radius: 6px;
+  padding: 6px 10px;
+  line-height: 1.4;
+}
+
 .cork-results {
   margin-top: 28px;
 }

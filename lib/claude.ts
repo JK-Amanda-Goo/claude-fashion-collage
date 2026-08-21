@@ -14,9 +14,11 @@ export function buildFashionPrompt(preference?: string): string {
 
   return `Analyze this fashion photo.${preferenceClause}
 
-For each distinct clothing item or accessory visible on the person, return a JSON array with:
+For each distinct purchasable clothing item or accessory visible on the person (e.g. tops, bottoms, dresses, outerwear, shoes, bags, jewelry, hats), return a JSON array with:
 - label: a short, specific description (e.g. "white linen blazer", "black leather ankle boots", "silver hoop earrings")
 - query: a Google Shopping search query to find similar items (e.g. "white linen blazer women")
+
+Do NOT include body features like tattoos, hairstyles, makeup, or skin — only items someone could shop for.
 
 Return ONLY a valid JSON array, no markdown, no explanation:
 [{ "label": "...", "query": "..." }]

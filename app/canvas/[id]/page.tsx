@@ -21,9 +21,11 @@ export default function CanvasPage() {
   const [savedPreference, setSavedPreference] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const [discovered, setDiscovered] = useState<DiscoveredItem[]>([]);
   const [isDiscovering, setIsDiscovering] = useState(false);
+  const [discoverError, setDiscoverError] = useState<string | null>(null);
 
   const canvas = canvases.find((c) => c.id === id);
 
@@ -73,14 +75,18 @@ export default function CanvasPage() {
     const items = getAllItems();
     if (items.length === 0) return;
     setIsSearching(true);
+    setSearchError(null);
     try {
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items, preference, canvasId: id }),
       });
+      if (!res.ok) throw new Error("Search failed. Please try again.");
       const data = await res.json();
       setSearchResults(data.results ?? []);
+    } catch (err) {
+      setSearchError(err instanceof Error ? err.message : "Search failed. Please try again.");
     } finally {
       setIsSearching(false);
     }
@@ -90,12 +96,14 @@ export default function CanvasPage() {
     const items = getAllItems();
     if (items.length === 0) return;
     setIsDiscovering(true);
+    setDiscoverError(null);
     try {
       const res = await fetch("/api/discover", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items, canvasTitle: canvas?.title, canvasId: id }),
       });
+      if (!res.ok) throw new Error("Discovery failed. Please try again.");
       const data = await res.json();
       setDiscovered((prev) => {
         const seen = new Set(prev.map((i) => i.label.toLowerCase()));
@@ -104,6 +112,8 @@ export default function CanvasPage() {
         );
         return [...prev, ...fresh];
       });
+    } catch (err) {
+      setDiscoverError(err instanceof Error ? err.message : "Discovery failed. Please try again.");
     } finally {
       setIsDiscovering(false);
     }
@@ -179,6 +189,7 @@ export default function CanvasPage() {
               {saveBtnLabel}
             </button>
           </div>
+          {searchError && <p className="fc-error">{searchError}</p>}
 
           <PhotoGrid
             photos={canvas.photos}
@@ -217,6 +228,7 @@ export default function CanvasPage() {
               >
                 {isDiscovering ? "Discovering…" : "Discover more"}
               </button>
+              {discoverError && <p className="fc-error">{discoverError}</p>}
 
               {discovered.length > 0 && (
                 <div className="cork-results">
