@@ -11,7 +11,8 @@ export default function HomePage() {
   const router = useRouter();
   const user = getCurrentUser();
 
-  function handleLogout() {
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
     logout();
     router.push("/login");
   }

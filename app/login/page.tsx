@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { register, login, setCurrentUser } from "@/lib/auth";
+import { setCurrentUser } from "@/lib/auth";
 import { logEvent } from "@/lib/eventLog";
 
 export default function LoginPage() {
@@ -19,21 +19,26 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      if (mode === "register") {
-        const result = await register(email.trim(), password);
-        if (result === "exists") {
-          setError("An account with this email already exists.");
-          return;
-        }
-      }
+      const endpoint = mode === "register" ? "/api/auth/register" : "/api/auth/login";
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
 
-      const result = await login(email.trim(), password);
-      if (result === "invalid") {
-        setError("Invalid email or password.");
+      if (!res.ok) {
+        if (res.status === 409) {
+          setError("An account with this email already exists.");
+        } else if (mode === "register") {
+          setError("Could not create account.");
+        } else {
+          setError("Invalid email or password.");
+        }
         return;
       }
 
-      setCurrentUser(email.trim().toLowerCase());
+      const data: { email: string } = await res.json();
+      setCurrentUser(data.email);
       logEvent("login");
       router.push("/");
     } finally {
