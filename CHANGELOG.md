@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-17
+### Added
+- Server-side authentication: `users` table with signed httpOnly session cookies, replacing the old client-only (localStorage) login. Lays the groundwork for gating paid subscription tiers.
+- Subscription tier badge shown in the header, sourced from the server session (defaults to `trial` on signup).
+
 ## [0.3.0] - 2026-08-21
 ### Added
 - Postgres event logging (Vercel Postgres / Neon): `events` table records `login`, `canvas_created`, and `photo_uploaded` per user, queryable by user, event type, canvas, or time.
@@ -20,7 +25,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Langfuse tracing for image analysis calls.
 - Initial test suite.
 
-[Unreleased]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/releases/tag/v0.1.0
