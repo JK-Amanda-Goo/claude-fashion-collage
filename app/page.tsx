@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCanvasesContext } from "@/app/providers";
 import CanvasCard from "@/components/CanvasCard";
@@ -10,6 +11,14 @@ export default function HomePage() {
   const { canvases, createCanvas, deleteCanvas } = useCanvasesContext();
   const router = useRouter();
   const user = getCurrentUser();
+  const [tier, setTier] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setTier(data?.tier ?? null))
+      .catch(() => setTier(null));
+  }, []);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -27,7 +36,25 @@ export default function HomePage() {
               <p className="cork-sub">Your personal moodboard</p>
             </div>
             <div style={{ textAlign: "right", paddingTop: 8 }}>
-              <p style={{ fontSize: 12, color: "var(--ink-3)", marginBottom: 4 }}>{user}</p>
+              <p style={{ fontSize: 12, color: "var(--ink-3)", marginBottom: 4 }}>
+                {user}
+                {tier && (
+                  <span
+                    style={{
+                      marginLeft: 8,
+                      padding: "2px 8px",
+                      borderRadius: 999,
+                      fontSize: 10,
+                      textTransform: "uppercase",
+                      letterSpacing: 0.5,
+                      background: "var(--paper-2)",
+                      color: "var(--ink-2)",
+                    }}
+                  >
+                    {tier}
+                  </span>
+                )}
+              </p>
               <button className="link-btn" onClick={handleLogout} style={{ fontSize: 12 }}>
                 Sign out
               </button>
