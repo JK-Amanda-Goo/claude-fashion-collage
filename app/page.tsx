@@ -1,30 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useCanvasesContext } from "@/app/providers";
+import { useCanvasesContext, useAuthContext } from "@/app/providers";
 import CanvasCard from "@/components/CanvasCard";
 import CreateCanvasForm from "@/components/CreateCanvasForm";
 import { logout, getCurrentUser } from "@/lib/auth";
 
 export default function HomePage() {
   const { canvases, createCanvas, deleteCanvas } = useCanvasesContext();
+  const { tier, hasAccess } = useAuthContext();
   const router = useRouter();
   const user = getCurrentUser();
-  const [tier, setTier] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => setTier(data?.tier ?? null))
-      .catch(() => setTier(null));
-  }, []);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
     logout();
     router.push("/login");
+  }
+
+  function handleCreateCanvas(title: string) {
+    if (!hasAccess) {
+      router.push("/account");
+      return;
+    }
+    createCanvas(title);
   }
 
   return (
@@ -65,7 +65,7 @@ export default function HomePage() {
           </div>
 
           <div style={{ marginBottom: 38 }}>
-            <CreateCanvasForm onCreate={createCanvas} />
+            <CreateCanvasForm onCreate={handleCreateCanvas} />
           </div>
 
           {canvases.length === 0 ? (

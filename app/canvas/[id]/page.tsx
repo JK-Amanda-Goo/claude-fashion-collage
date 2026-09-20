@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useCanvasesContext } from "@/app/providers";
+import { useCanvasesContext, useAuthContext } from "@/app/providers";
 import { usePhotoUpload } from "@/hooks/usePhotoUpload";
 import PhotoGrid from "@/components/PhotoGrid";
 import UploadButton from "@/components/UploadButton";
@@ -13,7 +13,9 @@ import type { DiscoveredItem } from "@/app/api/discover/route";
 
 export default function CanvasPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const { canvases, addPhoto, deletePhoto, toggleItemChecked } = useCanvasesContext();
+  const { hasAccess } = useAuthContext();
   const [expandedPhotoId, setExpandedPhotoId] = useState<string | null>(null);
   const [newPhotoId, setNewPhotoId] = useState<string | null>(null);
 
@@ -166,6 +168,8 @@ export default function CanvasPage() {
               onFileSelected={upload}
               isLoading={isLoading}
               error={error}
+              blocked={!hasAccess}
+              onBlocked={() => router.push("/account")}
             />
           </div>
 

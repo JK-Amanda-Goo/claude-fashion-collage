@@ -5,6 +5,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-19
+### Added
+- 7-day trial enforcement: new signups get a trial that expires `TRIAL_DAYS` (default 7) days after signup. Creating a new canvas or uploading a photo after the trial ends is blocked and redirects to `/account` instead, which now shows an "expired" message and marks the Trial plan as expired rather than current.
+
 ## [0.5.0] - 2026-09-18
 ### Added
 - `/account` page previewing the upcoming Basic ($5/mo) and Pro ($20/mo) plans alongside the current Trial plan, linked from the tier badge in the header. Upgrade/manage actions are disabled ("Coming soon") until Stripe billing is wired up.
@@ -29,7 +33,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Langfuse tracing for image analysis calls.
 - Initial test suite.
 
-[Unreleased]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.2.0...v0.3.0

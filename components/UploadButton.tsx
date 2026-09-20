@@ -6,14 +6,26 @@ interface UploadButtonProps {
   onFileSelected: (file: File) => void;
   isLoading: boolean;
   error: string | null;
+  blocked?: boolean;
+  onBlocked?: () => void;
 }
 
 export default function UploadButton({
   onFileSelected,
   isLoading,
   error,
+  blocked,
+  onBlocked,
 }: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function handleButtonClick() {
+    if (blocked) {
+      onBlocked?.();
+      return;
+    }
+    inputRef.current?.click();
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -35,7 +47,7 @@ export default function UploadButton({
       />
       <button
         type="button"
-        onClick={() => inputRef.current?.click()}
+        onClick={handleButtonClick}
         disabled={isLoading}
         className="upload-fab"
         aria-label={isLoading ? "Analyzing…" : "Upload photo"}
