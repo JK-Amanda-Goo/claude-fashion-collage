@@ -16,6 +16,7 @@ export interface UseCanvasesReturn {
 }
 
 function stripDataUrl(photo: Photo): Photo {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { dataUrl: _, ...rest } = photo;
   return rest;
 }

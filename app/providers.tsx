@@ -24,17 +24,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [checked, setChecked] = useState(false);
   const [auth, setAuth] = useState<AuthState>(DEFAULT_AUTH_STATE);
+  const isLoginPage = pathname === "/login";
 
   useEffect(() => {
-    if (pathname === "/login") {
-      setChecked(true);
-      return;
-    }
+    if (isLoginPage) return;
     const user = getCurrentUser();
     if (!user) {
       router.replace("/login");
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- gates render on a client-only auth check (localStorage), not derivable at render time
     setChecked(true);
 
     fetch("/api/auth/me")
@@ -45,9 +44,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         }
       })
       .catch(() => {});
-  }, [pathname, router]);
+  }, [isLoginPage, router]);
 
-  if (!checked) return null;
+  if (!isLoginPage && !checked) return null;
 
   return (
     <AuthContext.Provider value={auth}>
