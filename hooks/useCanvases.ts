@@ -9,6 +9,7 @@ import { logEvent } from "@/lib/eventLog";
 export interface UseCanvasesReturn {
   canvases: Canvas[];
   createCanvas: (title: string) => void;
+  renameCanvas: (canvasId: string, title: string) => void;
   deleteCanvas: (canvasId: string) => void;
   addPhoto: (canvasId: string, photo: Photo) => void;
   deletePhoto: (canvasId: string, photoId: string) => void;
@@ -78,6 +79,18 @@ export function useCanvases(): UseCanvasesReturn {
     logEvent("photo_uploaded", { canvasId, metadata: { photoId: photo.id } });
   }, []);
 
+  const renameCanvas = useCallback((canvasId: string, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    setCanvases((prev) => {
+      const updated = prev.map((c) =>
+        c.id === canvasId ? { ...c, title: trimmed } : c
+      );
+      saveWithoutDataUrls(updated);
+      return updated;
+    });
+  }, []);
+
   const deleteCanvas = useCallback((canvasId: string) => {
     setCanvases((prev) => {
       const canvas = prev.find((c) => c.id === canvasId);
@@ -131,5 +144,5 @@ export function useCanvases(): UseCanvasesReturn {
     []
   );
 
-  return { canvases, createCanvas, deleteCanvas, addPhoto, deletePhoto, toggleItemChecked };
+  return { canvases, createCanvas, renameCanvas, deleteCanvas, addPhoto, deletePhoto, toggleItemChecked };
 }

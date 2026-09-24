@@ -5,6 +5,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-23
+### Added
+- Canvas titles are now editable: click the title on a canvas page to rename it inline (Enter to save, Escape to cancel).
+
 ## [0.6.0] - 2026-09-19
 ### Added
 - 7-day trial enforcement: new signups get a trial that expires `TRIAL_DAYS` (default 7) days after signup. Creating a new canvas or uploading a photo after the trial ends is blocked and redirects to `/account` instead, which now shows an "expired" message and marks the Trial plan as expired rather than current.
@@ -33,7 +37,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Langfuse tracing for image analysis calls.
 - Initial test suite.
 
-[Unreleased]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/JK-Amanda-Goo/claude-fashion-collage/compare/v0.3.0...v0.4.0

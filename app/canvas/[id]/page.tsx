@@ -14,10 +14,12 @@ import type { DiscoveredItem } from "@/app/api/discover/route";
 export default function CanvasPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { canvases, addPhoto, deletePhoto, toggleItemChecked } = useCanvasesContext();
+  const { canvases, addPhoto, deletePhoto, toggleItemChecked, renameCanvas } = useCanvasesContext();
   const { hasAccess } = useAuthContext();
   const [expandedPhotoId, setExpandedPhotoId] = useState<string | null>(null);
   const [newPhotoId, setNewPhotoId] = useState<string | null>(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
 
   const [preference, setPreference] = useState("");
   const [savedPreference, setSavedPreference] = useState("");
@@ -63,6 +65,20 @@ export default function CanvasPage() {
   function handleDeletePhoto(photoId: string) {
     deletePhoto(id, photoId);
     if (expandedPhotoId === photoId) setExpandedPhotoId(null);
+  }
+
+  function startEditingTitle() {
+    if (!canvas) return;
+    setTitleDraft(canvas.title);
+    setIsEditingTitle(true);
+  }
+
+  function commitTitleEdit() {
+    const trimmed = titleDraft.trim();
+    if (trimmed && trimmed !== canvas?.title) {
+      renameCanvas(id, trimmed);
+    }
+    setIsEditingTitle(false);
   }
 
   function getAllItems(): DetectedItem[] {
@@ -163,7 +179,30 @@ export default function CanvasPage() {
           </Link>
 
           <div className="detail-head-row">
-            <h1 className="cork-title">{canvas.title}</h1>
+            {isEditingTitle ? (
+              <input
+                className="cork-title-input"
+                value={titleDraft}
+                autoFocus
+                onChange={(e) => setTitleDraft(e.target.value)}
+                onBlur={commitTitleEdit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitTitleEdit();
+                  if (e.key === "Escape") setIsEditingTitle(false);
+                }}
+              />
+            ) : (
+              <h1
+                className="cork-title cork-title-editable"
+                onClick={startEditingTitle}
+                role="button"
+                tabIndex={0}
+                aria-label="Edit canvas title"
+                onKeyDown={(e) => e.key === "Enter" && startEditingTitle()}
+              >
+                {canvas.title}
+              </h1>
+            )}
             <UploadButton
               onFileSelected={upload}
               isLoading={isLoading}

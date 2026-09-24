@@ -383,6 +383,32 @@ body {
   font-size: 48px;
 }
 
+.cork-title-editable {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: opacity 120ms;
+}
+.cork-title-editable:hover,
+.cork-title-editable:focus-visible {
+  opacity: 0.85;
+}
+
+.cork-title-input {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 48px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #fff8ec;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(255, 248, 236, 0.6);
+  outline: none;
+  margin: 0 0 8px;
+  padding: 0 0 2px;
+  width: 100%;
+}
+
 .context-strip {
   display: flex;
   gap: 10px;

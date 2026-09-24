@@ -86,6 +86,28 @@ describe("useCanvases", () => {
     expect(items[1].checked).toBe(false);
   });
 
+  it("renameCanvas updates the title in state and localStorage", async () => {
+    const { result } = renderHook(() => useCanvases());
+    await waitFor(() => expect(result.current.canvases).toBeDefined());
+    act(() => { result.current.createCanvas("Test Canvas"); });
+    const canvasId = result.current.canvases[0].id;
+    act(() => { result.current.renameCanvas(canvasId, "Spring Looks"); });
+    expect(result.current.canvases[0].title).toBe("Spring Looks");
+    const saved = JSON.parse(
+      localStorage.getItem("FASHION_COLLAGE_CANVASES") ?? "[]"
+    );
+    expect(saved[0].title).toBe("Spring Looks");
+  });
+
+  it("renameCanvas ignores blank titles", async () => {
+    const { result } = renderHook(() => useCanvases());
+    await waitFor(() => expect(result.current.canvases).toBeDefined());
+    act(() => { result.current.createCanvas("Test Canvas"); });
+    const canvasId = result.current.canvases[0].id;
+    act(() => { result.current.renameCanvas(canvasId, "   "); });
+    expect(result.current.canvases[0].title).toBe("Test Canvas");
+  });
+
   it("deletePhoto removes the photo from state and localStorage", async () => {
     const photo = makePhoto();
     const { result } = renderHook(() => useCanvases());
