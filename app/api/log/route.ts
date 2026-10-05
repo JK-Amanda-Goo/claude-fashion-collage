@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
+import { verifySession, SESSION_COOKIE } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
+  const session = verifySession(req.cookies.get(SESSION_COOKIE)?.value);
+  if (!session) {
+    return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  }
+
   let body: {
-    userEmail?: string;
     eventType?: string;
     canvasId?: string;
     metadata?: Record<string, unknown>;
@@ -14,11 +19,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { userEmail, eventType, canvasId, metadata } = body;
+  const { eventType, canvasId, metadata } = body;
+  const userEmail = session.email;
 
-  if (!userEmail || !eventType) {
+  if (!eventType || eventType.length > 64) {
     return NextResponse.json(
-      { error: "userEmail and eventType are required" },
+      { error: "eventType is required" },
       { status: 400 }
     );
   }

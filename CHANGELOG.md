@@ -5,6 +5,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-04
+### Added
+- Public-beta hardening: `/api/analyze`, `/api/search`, `/api/discover` now require a signed-in session and are rate limited per user (30 AI calls / rolling 24h) and globally (1000 / 24h), tracked in a new `ai_usage` table (run `scripts/migrate.mjs`).
+- Photos are resized client-side (max 1600px JPEG) before upload so phone photos stay under Vercel's request body limit; server rejects non-image types and oversized payloads.
+- Clear error messages for daily-limit and expired-session responses on upload.
+
+### Changed
+- Free beta: `FREE_BETA` flag in `lib/serverAuth.ts` gives everyone full access and the trial never expires. `/account` now shows a free-beta note instead of the plan preview; the tier badge is removed from the header.
+- Session is recovered from the server cookie on load, so opening the app in a new tab or after closing the browser no longer forces a re-login.
+- `/api/log` takes the user from the session instead of the request body and requires sign-in.
+- `/api/langsmith/*` dev/eval routes return 404 in production.
+
 ## [0.7.0] - 2026-09-23
 ### Added
 - Canvas titles are now editable: click the title on a canvas page to rename it inline (Enter to save, Escape to cancel).

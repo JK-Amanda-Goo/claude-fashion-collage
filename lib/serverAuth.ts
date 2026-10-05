@@ -6,6 +6,10 @@ import { sql } from "@/lib/db";
 // their signup date, not stored per-user.
 export const TRIAL_DAYS = 7;
 
+// While true, everyone has full access and the trial never expires. Flip to
+// false when paid tiers launch.
+export const FREE_BETA = true;
+
 export interface UserRecord {
   id: number;
   email: string;
@@ -71,6 +75,6 @@ export function getTrialStatus(user: UserRecord): {
   const trialEndsAt = new Date(
     new Date(user.createdAt).getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000
   );
-  const hasAccess = user.tier !== "trial" || Date.now() < trialEndsAt.getTime();
+  const hasAccess = FREE_BETA || user.tier !== "trial" || Date.now() < trialEndsAt.getTime();
   return { trialEndsAt: trialEndsAt.toISOString(), hasAccess };
 }

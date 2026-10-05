@@ -14,6 +14,26 @@ export interface UsePhotoUploadReturn {
   error: string | null;
 }
 
+const MAX_DIMENSION = 1600;
+
+async function prepareImage(
+  file: File
+): Promise<{ base64: string; mimeType: string }> {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+    return { base64: dataUrl.split(",")[1], mimeType: "image/jpeg" };
+  } catch {
+    return { base64: await fileToBase64(file), mimeType: file.type };
+  }
+}
+
 async function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -42,17 +62,23 @@ export function usePhotoUpload({
 
       try {
         const photoId = crypto.randomUUID();
-        const imageBase64 = await fileToBase64(file);
-        const dataUrl = `data:${file.type};base64,${imageBase64}`;
+        const { base64: imageBase64, mimeType } = await prepareImage(file);
+        const dataUrl = `data:${mimeType};base64,${imageBase64}`;
 
         const preference = localStorage.getItem(`pref-${canvasId}`) ?? undefined;
 
         const res = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageBase64, mimeType: file.type, preference }),
+          body: JSON.stringify({ imageBase64, mimeType, preference }),
         });
 
+        if (res.status === 429) {
+          throw new Error("Daily limit reached. Please try again tomorrow.");
+        }
+        if (res.status === 401) {
+          throw new Error("Session expired. Please sign in again.");
+        }
         if (!res.ok) throw new Error("Analysis failed");
 
         const { detectedItems } = (await res.json()) as {

@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAiAccess } from "@/lib/apiGuard";
 import { analyzeImage, buildFashionPrompt, MODEL } from "@/lib/claude";
 import { getLangfuse } from "@/lib/langfuse";
 import { getLangsmith, LANGSMITH_PROJECT } from "@/lib/langsmith";
 
+const MAX_IMAGE_BASE64_CHARS = 5_000_000;
+
 export async function POST(req: NextRequest) {
+  const access = await requireAiAccess(req, "analyze");
+  if (access instanceof NextResponse) return access;
+
   let body: { imageBase64?: string; mimeType?: string; preference?: string };
   try {
     body = await req.json();
@@ -18,6 +24,13 @@ export async function POST(req: NextRequest) {
       { error: "imageBase64 and mimeType are required" },
       { status: 400 }
     );
+  }
+
+  if (
+    !["image/jpeg", "image/png", "image/gif", "image/webp"].includes(mimeType) ||
+    imageBase64.length > MAX_IMAGE_BASE64_CHARS
+  ) {
+    return NextResponse.json({ error: "Unsupported or too large image" }, { status: 413 });
   }
 
   const imageSizeBytes = Math.round((imageBase64.length * 3) / 4);

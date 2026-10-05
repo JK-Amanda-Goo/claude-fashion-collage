@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useCanvases } from "@/hooks/useCanvases";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, setCurrentUser } from "@/lib/auth";
 import type { UseCanvasesReturn } from "@/hooks/useCanvases";
 export type { UseCanvasesReturn };
 
@@ -28,22 +28,21 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isLoginPage) return;
-    const user = getCurrentUser();
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- gates render on a client-only auth check (localStorage), not derivable at render time
-    setChecked(true);
-
     fetch("/api/auth/me")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.authenticated) {
+          setCurrentUser(data.email);
           setAuth({ email: data.email, tier: data.tier, hasAccess: data.hasAccess });
+          setChecked(true);
+        } else {
+          router.replace("/login");
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (getCurrentUser()) setChecked(true);
+        else router.replace("/login");
+      });
   }, [isLoginPage, router]);
 
   if (!isLoginPage && !checked) return null;

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAiAccess } from "@/lib/apiGuard";
 import { refineSearchQueries, MODEL } from "@/lib/claude";
 import { getLangfuse } from "@/lib/langfuse";
 import { getLangsmith, LANGSMITH_PROJECT } from "@/lib/langsmith";
@@ -16,6 +17,9 @@ function buildShoppingUrl(query: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  const access = await requireAiAccess(req, "search");
+  if (access instanceof NextResponse) return access;
+
   let body: { items?: DetectedItem[]; preference?: string; canvasId?: string };
   try {
     body = await req.json();
@@ -27,6 +31,9 @@ export async function POST(req: NextRequest) {
 
   if (!items || !Array.isArray(items) || items.length === 0) {
     return NextResponse.json({ error: "items array is required" }, { status: 400 });
+  }
+  if (items.length > 100) {
+    return NextResponse.json({ error: "Too many items" }, { status: 413 });
   }
 
   const userPreference = preference?.trim() || "No specific preference";

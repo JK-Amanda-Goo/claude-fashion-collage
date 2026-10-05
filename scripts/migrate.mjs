@@ -31,4 +31,15 @@ await sql`
   )
 `;
 
-console.log("Migration complete: events + users tables ready.");
+await sql`
+  CREATE TABLE IF NOT EXISTS ai_usage (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    endpoint TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  )
+`;
+await sql`CREATE INDEX IF NOT EXISTS ai_usage_created_at_idx ON ai_usage(created_at)`;
+await sql`CREATE INDEX IF NOT EXISTS ai_usage_user_id_idx ON ai_usage(user_id, created_at)`;
+
+console.log("Migration complete: events + users + ai_usage tables ready.");
